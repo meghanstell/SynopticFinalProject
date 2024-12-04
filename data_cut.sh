@@ -89,7 +89,7 @@ function _success(){
 
 # Context Variables
 model='Colorado'
-src_dir="/glade/derecho/scratch/meghan/Colorado/data/${model}"
+src_dir="/glade/derecho/scratch/meghan/Colorado/data/CONUS404/${model}"
 out_dir="/glade/derecho/scratch/meghan/Colorado/SynopticFinalProject/data/${model}/cat"
 day_out_dir=${out_dir}/daily
 month_out_dir=${out_dir}/monthly
