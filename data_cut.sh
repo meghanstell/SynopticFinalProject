@@ -88,69 +88,92 @@ function _success(){
 #####################################################################################################
 
 # Context Variables
-model='PGW'
-src_dir="/glade/campaign/ral/hap/cweeks/montana/data/model/${model}/SeedingCriteria"
-out_dir="/glade/derecho/scratch/meghan/Montana/data/model/${model}/SeedingCriteria"
+model='Colorado'
+src_dir="/glade/derecho/scratch/meghan/Colorado/SynopticFinalProject/data/${model}"
+out_dir="/glade/derecho/scratch/meghan/Colorado/SynopticFinalProject/data/${model}/cat"
 day_out_dir=${out_dir}/daily
 month_out_dir=${out_dir}/monthly
-season_out_dir=${out_dir}/season
 
-mkdir -p -m 777 ${day_out_dir} ${month_out_dir} ${season_out_dir} 2>/dev/null
+day_out_dir_2d=${day_out_dir}/2D
+day_out_dir_3d=${day_out_dir}/3D
+
+month_out_dir_2d=${month_out_dir}/2D
+month_out_dir_3d=${month_out_dir}/3D
+# season_out_dir=${out_dir}/season
+
+# mkdir -p -m 777 ${day_out_dir} ${month_out_dir} ${season_out_dir} 2>/dev/null
+mkdir -p -m 777 \
+    ${day_out_dir_2d} \
+    ${day_out_dir_3d} \
+    ${month_out_dir_2d} \
+    ${month_out_dir_3d} >/dev/null
 
 cmd="ncrcat --hst "
 
-function combine_day_of_all_years(){    
+function combine_day_of_all_years_2d(){    
     month=$1
     day=$2
-    day_cat_file=${day_out_dir}/${model}_SV_${month}_${day}.nc
-    if [ ! -f ${day_cat_file} ]; then
-        _info    "combine_day_of_all_years.${month}.${day}" "${YELLOW}Processing Day ${MAGENTA}${month}-${day}${RESET}"
-        ${cmd} ${src_dir}/Seeding_criteria_*-${month}-${day}_*.nc ${day_cat_file}
-        _success "combine_day_of_all_years.${month}.${day}" "${GREEN}Done Processing Day ${MAGENTA}${month}-${day}${RESET}"
+    day_cat_file_2d=${day_out_dir_2d}/${model}_2D_SV_${month}_${day}.nc
+    if [ ! -f ${day_cat_file_2d} ]; then
+        _info    "combine_day_of_all_years_2d.${month}.${day}" "${YELLOW}Processing Day ${MAGENTA}${month}-${day}${RESET}"
+        ${cmd} ${src_dir}/2D/wrf2d_d01_*-${month}-${day}_*.nc ${day_cat_file_2d}
+        _success "combine_day_of_all_years_2d.${month}.${day}" "${GREEN}Done Processing Day ${MAGENTA}${month}-${day}${RESET}"
     else
-        _warn "combine_day_of_all_years.${month}.${day}" "Output file ${YELLOW}${day_cat_file}${RESET} already exists!"
+        _warn "combine_day_of_all_years_2d.${month}.${day}" "Output file ${YELLOW}${day_cat_file_2d}${RESET} already exists!"
     fi
 }
 
-function combine_month_of_all_years(){
+function combine_day_of_all_years_3d(){    
     month=$1
-    _info    "combine_month_of_all_years.${month}" "${YELLOW}Processing Month ${MAGENTA}${month}${RESET}"
-    month_cat_file=${month_out_dir}/${model}_SV_${month}.nc
-    if [ ! -f ${month_cat_file} ]; then
-        for day in `seq -f %02g 01 31`; do
-            combine_day_of_all_years ${month} ${day} &
+    day=$2
+    day_cat_file_3d=${day_out_dir_3d}/${model}_3D_SV_${month}_${day}.nc
+    if [ ! -f ${day_cat_file_3d} ]; then
+        _info    "combine_day_of_all_years_3d.${month}.${day}" "${YELLOW}Processing Day ${MAGENTA}${month}-${day}${RESET}"
+        ${cmd} ${src_dir}/3D/wrf3d_d01_*-${month}-${day}_*.nc ${day_cat_file_3d}
+        _success "combine_day_of_all_years_3d.${month}.${day}" "${GREEN}Done Processing Day ${MAGENTA}${month}-${day}${RESET}"
+    else
+        _warn "combine_day_of_all_years_3d.${month}.${day}" "Output file ${YELLOW}${day_cat_file_3d}${RESET} already exists!"
+    fi
+}
+
+function combine_month_of_all_years_2d(){
+    month=$1
+    _info    "combine_month_of_all_years_2d.${month}" "${YELLOW}Processing Month ${MAGENTA}${month}${RESET}"
+    month_cat_file_2d=${month_out_dir_2d}/${model}_2D_SV_${month}.nc
+    if [ ! -f ${month_cat_file_2d} ]; then
+        for day in `seq -f %02g 16 19`; do
+            combine_day_of_all_years_2d ${month} ${day} &
         done
         wait
-        ${cmd} ${day_out_dir}/${model}_SV_${month}_*.nc ${month_cat_file}
-        _success "combine_month_of_all_years.${month}" "${GREEN}Done Processing Month ${MAGENTA}${month}${RESET}"
+        ${cmd} ${day_out_dir_2d}/${model}_2D_SV_${month}_*.nc ${month_cat_file_2d}
+        _success "combine_month_of_all_years_2d.${month}" "${GREEN}Done Processing Month ${MAGENTA}${month}${RESET}"
     else
-        _warn "combine_month_of_all_years.${month}" "Output file ${YELLOW}${month_cat_file}${RESET} already exists!"
+        _warn "combine_month_of_all_years_2d.${month}" "Output file ${YELLOW}${month_cat_file_2d}${RESET} already exists!"
     fi
 }
 
-function combine_seasonal_months(){
-    season_cat_file=${season_out_dir}/${model}_SV_Season.nc
-    if [ ! -f ${season_cat_file} ]; then
-        _info    "combine_seasonal_months" "${YELLOW}Combining Seasonal Months${RESET}"
-        ${cmd} \
-            ${month_out_dir}/${model}_SV_11.nc \
-            ${month_out_dir}/${model}_SV_12.nc \
-            ${month_out_dir}/${model}_SV_01.nc \
-            ${month_out_dir}/${model}_SV_02.nc \
-            ${month_out_dir}/${model}_SV_03.nc \
-            ${month_out_dir}/${model}_SV_04.nc \
-            ${season_cat_file}
-        _success "combine_seasonal_months" "${GREEN}Done!${RESET} Output located at ${MAGENTA}${season_cat_file}${RESET}"
+function combine_month_of_all_years_3d(){
+    month=$1
+    _info    "combine_month_of_all_years_3d.${month}" "${YELLOW}Processing Month ${MAGENTA}${month}${RESET}"
+    month_cat_file_3d=${month_out_dir_3d}/${model}_3D_SV_${month}.nc
+    if [ ! -f ${month_cat_file_3d} ]; then
+        for day in `seq -f %02g 16 19`; do
+            combine_day_of_all_years_3d ${month} ${day} &
+        done
+        wait
+        ${cmd} ${day_out_dir_3d}/${model}_3D_SV_${month}_*.nc ${month_cat_file_3d}
+        _success "combine_month_of_all_years_3d.${month}" "${GREEN}Done Processing Month ${MAGENTA}${month}${RESET}"
     else
-        _warn "combine_seasonal_months" "Output file ${YELLOW}${season_cat_file}${RESET} already exists!"
+        _warn "combine_month_of_all_years_3d.${month}" "Output file ${YELLOW}${month_cat_file_3d}${RESET} already exists!"
     fi
 }
 
 function handle_months(){
-    months=("01" "02" "03" "04" "05" "11" "12")
+    months=("03")
     for month in ${months[@]}; do
         # _info "handle_months.${month}" "Launching combine_month_of_all_years for ${MAGENTA}${month}${RESET}"
-        combine_month_of_all_years ${month} &
+        combine_month_of_all_years_2d ${month} &
+        combine_month_of_all_years_3d ${month} &
     done
     wait
     _success "handle_months" "Done!"
@@ -159,7 +182,7 @@ function handle_months(){
 function run(){
     _info "run" "Combining source Seeding Criteria data\n\tSource: ${YELLOW}${src_dir}${RESET}\n\tOutput: ${YELLOW}${out_dir}${RESET}"
     handle_months
-    combine_seasonal_months
+    # combine_seasonal_months
     _success "run" "Done!"
 }
 
