@@ -145,7 +145,7 @@ month = sprinti("%0.2i",mm)
     tk=a->TK ;(0,:,:,:)
     tc=tk-273.15
     rho=p/(tk*287.5) ;1./wrf_user_getvar(a,"ALT",0)
-    zz=a->Z
+    zz=a->Z ;(0,:,:,:)
     
     index_250mb=where(abs(p*0.01-250).lt.15.,1.,-999.)
     index_250mb@_FillValue=-999.
