@@ -145,7 +145,7 @@ month = sprinti("%0.2i",mm)
     tk=a->TK ;(0,:,:,:)
     tc=tk-273.15
     rho=p/(tk*287.5) ;1./wrf_user_getvar(a,"ALT",0)
-    zz=a->Z(:,1:mdims(1),:,:)
+    z=a->Z(:,1:mdims(1),:,:)
     
     index_250mb=where(abs(p*0.01-250).lt.15.,1.,-999.)
     index_250mb@_FillValue=-999.
@@ -160,7 +160,7 @@ month = sprinti("%0.2i",mm)
     tc_250mb=dim_avg_n(tc*index_250mb,1)
     tc_250mb@_FillValue=-999.
 
-    z_250mb=dim_avg_n(zz*index_250mb,1)
+    z_250mb=dim_avg_n(z*index_250mb,1)
     z_250mb@_FillValue=-999.
 
 
@@ -168,14 +168,14 @@ month = sprinti("%0.2i",mm)
     tc_500mb=dim_avg_n(tc*index_500mb,1)
     tc_500mb@_FillValue=-999.
 
-    z_500mb=dim_avg_n(zz*index_500mb,1)
+    z_500mb=dim_avg_n(z*index_500mb,1)
     z_500mb@_FillValue=-999.
 
 
     tc_850mb=dim_avg_n(tc*index_850mb,1)
     tc_850mb@_FillValue=-999.
 
-    z_850mb=dim_avg_n(zz*index_850mb,1)
+    z_850mb=dim_avg_n(z*index_850mb,1)
     z_850mb@_FillValue=-999.
 
     lw=wrf_user_getvar(a,"QCLOUD",-1)+wrf_user_getvar(a,"QRAIN",-1)
