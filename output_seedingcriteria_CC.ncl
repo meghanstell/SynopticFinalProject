@@ -35,9 +35,6 @@ begin
 ; run = "PGW"
 indir="/glade/derecho/scratch/meghan/Colorado/data/CONUS404/Colorado/sv/3D/"
 outdir="/glade/derecho/scratch/meghan/Colorado/data/CONUS404/Colorado/SeedingVariables/"
-
-
-
 month = sprinti("%0.2i",mm)
 ; Coefficients for water saturation ratio and ice saturation ratio
   cst=(/.609868993E03,.499320233E02,.184672631E01,.402737184E-1,.565392987E-3,.521693933E-5,.307839583E-7,.105785160E-9,.161444444E-12/)
@@ -102,7 +99,6 @@ month = sprinti("%0.2i",mm)
 
 ; mdims(0) = time, mdims(1) = z, mdims(2) = y, mdims(3) = x
     mdims = getfilevardimsizes(a,"QVAPOR") ; get some dimension sizes for the file
-    ; mdims = getfilevardimsizes(a,"TK") ; get some dimension sizes for the file
 
     ter = a->Z(:,0,:,:)*1. ;wrf_user_getvar(a,"HGT",0)           ; Read the variable to memory
     index=ter
@@ -153,8 +149,14 @@ month = sprinti("%0.2i",mm)
     index_500mb=where(abs(p*0.01-500).lt.15.,1.,-999.)
     index_500mb@_FillValue=-999.
 
+    index_850mb=where(abs(p*0.01-850).lt.15.,1.,-999.)
+    index_850mb@_FillValue=-999.
+
     tc_500mb=dim_avg_n(tc*index_500mb,1)
     tc_500mb@_FillValue=-999.
+
+    tc_850mb=dim_avg_n(tc*index_850mb,1)
+    tc_850mb@_FillValue=-999.
 
     lw=wrf_user_getvar(a,"QCLOUD",-1)+wrf_user_getvar(a,"QRAIN",-1)
     qw=rho*lw
@@ -263,6 +265,11 @@ month = sprinti("%0.2i",mm)
     v_500mb=dim_avg_n(va*index_500mb,1)
     u_500mb@_FillValue=-999.
     v_500mb@_FillValue=-999.
+
+    u_850mb=dim_avg_n(ua*index_850mb,1)
+    v_850mb=dim_avg_n(va*index_850mb,1)
+    u_850mb@_FillValue=-999.
+    v_850mb@_FillValue=-999.
 
     uaz=hgt
     uaz=0.
@@ -386,47 +393,27 @@ month = sprinti("%0.2i",mm)
 
     setfileoption(outcdf,"DefineMode",True)
 
- dimNames = (/"Time", "south_north", "west_east"/)
- dimSizes = (/ 1 ,    124,  175 /)
- dimUnlim = (/ True , False, False/)
- filedimdef(outcdf, dimNames, dimSizes, dimUnlim)
-;  var_names = (/ "LWP", "CBH", "CDP", "CTT", "AS_CLD", "AS_LWC", "AS_LWR", "AS_Tc", "AS_U", "AS_V", "GS_CLD", "GS_LWC", "GS_LWR", "GS_Tc", "GS_U", "GS_V", "GS_BN2", "Tc_700MB", "U_700MB", "V_700MB", "GS_FrUIN", "GS_FrSRR", "GS_FrBRR"/)
-;  var_types = (/ "float", "float", "float", "float", "float", "float", \
-; 				"float", "float", "float", \
-; 				"float", "float", "float", "float", "float", "float", \
-; 				"float", "float", "float", "float", "float", \
-; 				"float", "float", "float"/)
-
- var_names = (/ "AS_LWC", "AS_Tc", "AS_U",  "AS_V",  "GS_LWC", "GS_Tc", "GS_U",  "GS_V",  "Tc_500MB", "U_500MB", "V_500MB"/)
- var_types = (/ "float",  "float", "float", "float", "float",  "float", "float", "float", "float",    "float",   "float"/)
-
-filevardef(outcdf, var_names, var_types, dimNames)
-;    fileattdef( outcdf, a)
+    dimNames = (/"Time", "south_north", "west_east"/)
+    dimSizes = (/ 1 ,    124,  175 /)
+    dimUnlim = (/ True , False, False/)
+    filedimdef(outcdf, dimNames, dimSizes, dimUnlim)
+    var_names = (/ "AS_LWC", "AS_Tc", "AS_U",  "AS_V",  "GS_LWC", "GS_Tc", "GS_U",  "GS_V",  "Tc_500MB", "U_500MB", "V_500MB",  "Tc_850MB", "U_850MB", "V_850MB"/)
+    var_types = (/ "float",  "float", "float", "float", "float",  "float", "float", "float", "float",    "float",   "float",    "float",    "float",   "float"/)
+    filevardef(outcdf, var_names, var_types, dimNames)
     outcdf->Time=Time
-	
-    ; outcdf->LWP=(/lwp/)
-    ; outcdf->CBH=(/CBH/)
-    ; outcdf->CDP=(/CDP/)
-    ; outcdf->CTT=(/CTT/)
-    ; outcdf->AS_CLD=(/cloudness_as	/)
     outcdf->AS_LWC=(/lwc_amc/)
-    ; outcdf->AS_LWR=(/qwqt_amc/)
     outcdf->AS_Tc=(/tc_amc/)
     outcdf->AS_U=(/u_adc/)
     outcdf->AS_V=(/v_adc/)
-	; outcdf->GS_CLD=(/cloudness_gs/)
     outcdf->GS_LWC=(/lwc_gmc/)
-    ; outcdf->GS_LWR=(/qwqt_gmc/)
     outcdf->GS_Tc=(/tc_gmc/)
     outcdf->GS_U=(/u_gdc/)
     outcdf->GS_V=(/v_gdc/)
-    ; outcdf->GS_BN2=(/bn2/)
     outcdf->Tc_500MB=(/tc_500mb/)
     outcdf->U_500MB=(/u_500mb/)
     outcdf->V_500MB=(/v_500mb/)
-	; outcdf->GS_FrUIN=(/fr_UIN/)
-	; outcdf->GS_FrSRR=(/fr_SRR/)
-	; outcdf->GS_FrBRR=(/fr_BRR/)
-
+    outcdf->Tc_850MB=(/tc_850mb/)
+    outcdf->U_850MB=(/u_850mb/)
+    outcdf->V_850MB=(/v_850mb/)
   end do
 end
