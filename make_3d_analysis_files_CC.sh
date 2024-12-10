@@ -135,7 +135,7 @@ function handle_2d_file(){
 function handle_const(){
     infile=${CONST}
     outdir_const="${outdir}"
-    outfile=$(basename ${infile})
+    outfile="COLO_$(basename ${infile})"
     outpath="${outdir_const}/${outfile}"
     if [ ! -f ${outfile} ]; then
         _info "handle_const" "Constants input file: ${YELLOW}${infile}${RESET}"
@@ -166,5 +166,8 @@ handle_3d
 handle_2d
 
 handle_const
+
+cd ${outdir}/3D
+ln -s ../2D ./2d
 
 _success "root" "Done"

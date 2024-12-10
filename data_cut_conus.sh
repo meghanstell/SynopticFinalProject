@@ -190,3 +190,4 @@ function run(){
 }
 
 run
+cp ${src_dir}/*constants*.nc ${out_dir}
