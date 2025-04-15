@@ -1,4 +1,4 @@
-Height,Pressure,Temperature,Density,H20,O3
+Height,Pressure,Temperature,Density,H2O,O3
 0.0,1.013E+03,288.1,1.225E+03,5.9E+00,5.4E-05
 1.0,8.986E+02,281.6,1.111E+03,4.2E+00,5.4E-05
 2.0,7.950E+02,275.1,1.007E+03,2.9E+00,5.4E-05
